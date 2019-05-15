@@ -10,7 +10,7 @@ init() {
 
 lint() {
   echo "Linting in $PWD"
-  ct lint --chart-dirs . --all || exit $?
+  # ct lint --chart-dirs . --all || exit $?
 }
 
 package() {
