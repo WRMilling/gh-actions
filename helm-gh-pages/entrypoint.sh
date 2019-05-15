@@ -18,18 +18,19 @@ package() {
 }
 
 push() {
-  echo "pushing charts: "
-  echo $(find /github/home/pkg/ -type f -name "*.tgz")
   if find /github/home/pkg/ -type f -name "*.tgz" > /dev/null; then    
     git config user.email ${GITHUB_ACTOR}@users.noreply.github.com
     git config user.name ${GITHUB_ACTOR}
     git remote set-url origin ${REPOSITORY}
     git checkout gh-pages
     cd ..
+    ls -al workspace/index.yaml
     helm repo index --url "$URL" --merge workspace/index.yaml /github/home/pkg
     cd workspace
     mv /github/home/pkg/*.tgz .
     mv /github/home/pkg/index.yaml .
+    ls -al index.yaml
+    diff /github/home/pkg/index.yaml index.yaml
     # helm repo index . --url ${URL}
     git add .
     git commit -m "Publish Helm chart(s)"
