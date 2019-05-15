@@ -3,8 +3,12 @@
 set -o errexit
 set -o pipefail
 
+init() {
+  helm init --client-only
+  mkdir /github/home/pkg
+}
+
 package() {
-    helm init --client-only
     helm lint ${CHART}
     mkdir /github/home/pkg
     helm package ${CHART} --destination /github/home/pkg/
@@ -33,6 +37,8 @@ URL=$2
 if [[ -z $2 ]] ; then
   echo "Helm repository URL parameter needed!" && exit 1;
 fi
+
+init
 
 if [[ -f "$TARGET/Chart.yaml" ]]; then
 	CHART=$(basename "$TARGET")
