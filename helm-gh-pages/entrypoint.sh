@@ -14,13 +14,12 @@ lint() {
 }
 
 package() {
-  echo "considering packaging the following: $(find . -type f -name "Chart.yaml" -exec dirname {} \;)"
   helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination /github/home/pkg/
 }
 
 push() {
-  if [[ $(find /github/home/pkg/ -type f -name "*.tgz") ]]; then
-    echo "Processing $(find /github/home/pkg/ -type f -name "*.tgz")"
+  echo "Processing $(find /github/home/pkg/ -type f -name "*.tgz")"
+  if find /github/home/pkg/ -type f -name "*.tgz" > /dev/null; then    
     git config user.email ${GITHUB_ACTOR}@users.noreply.github.com
     git config user.name ${GITHUB_ACTOR}
     git remote set-url origin ${REPOSITORY}
