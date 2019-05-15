@@ -4,7 +4,7 @@ set -o errexit
 set -o pipefail
 
 init() {
-  # helm init --client-only
+  helm init --client-only
   mkdir /github/home/pkg
 }
 
