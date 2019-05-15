@@ -8,10 +8,12 @@ init() {
   mkdir /github/home/pkg
 }
 
+lint() {
+    ct lint --chart-dirs . || exit $?
+}
+
 package() {
-    helm lint ${CHART}
-    mkdir /github/home/pkg
-    helm package ${CHART} --destination /github/home/pkg/
+    helm package ${1} --destination /github/home/pkg/
 }
 
 push() {
@@ -28,34 +30,39 @@ push() {
 
 REPOSITORY="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-TARGET=$1
-if [[ -z "$TARGET" ]]; then
-	echo "Set a target eg './stable', '*', './stable/ambassador'" && exit 1;
-fi
+# TARGET=$1
+# if [[ -z "$TARGET" ]]; then
+# 	echo "Set a target eg './stable', '*', './stable/ambassador'" && exit 1;
+# fi
 
-URL=$2
-if [[ -z $2 ]] ; then
+URL=$1
+if [[ -z $1 ]] ; then
   echo "Helm repository URL parameter needed!" && exit 1;
 fi
 
 init
 
-if [[ -f "$TARGET/Chart.yaml" ]]; then
-	CHART=$(basename "$TARGET")
-	echo "Packaging $CHART from $TARGET"
-	package
-	exit $?
-fi
-
-for dirname in "$TARGET"/*/; do
-	if [ ! -e "$dirname/Chart.yaml" ]; then
-		echo "No charts found for $TARGET"
-		continue
-	fi
-
-	CHART=$(basename "$dirname")
-	echo "Packaging $CHART from $dirname"
-	package || exit $?
+for chart_dir in $(ct list-changed --chart-dirs .); do
+  # CHART=$(basename "$chart_dir")
+  package "$chart_dir"
 done
+
+# if [[ -f "$TARGET/Chart.yaml" ]]; then
+# 	CHART=$(basename "$TARGET")
+# 	echo "Packaging $CHART from $TARGET"
+# 	package
+# 	exit $?
+# fi
+
+# for dirname in "$TARGET"/*/; do
+# 	if [ ! -e "$dirname/Chart.yaml" ]; then
+# 		echo "No charts found for $TARGET"
+# 		continue
+# 	fi
+
+# 	CHART=$(basename "$dirname")
+# 	echo "Packaging $CHART from $dirname"
+# 	package || exit $?
+# done
 
 push
