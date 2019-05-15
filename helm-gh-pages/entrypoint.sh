@@ -18,15 +18,15 @@ push() {
   mv /github/home/pkg/*.tgz .
   helm repo index . --url ${URL}
   git add .
-  git commit -m "Publish Helm chart ${CHART} ${TAG}"
+  git commit -m "Publish Helm chart(s)"
   git push origin gh-pages
 }
 
 REPOSITORY="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-CHART=$1
-if [[ -z $1 ]] ; then
-  echo "Chart path parameter needed!" && exit 1;
+TARGET=$1
+if [[ -z "$TARGET" ]]; then
+	echo "Set a target eg './stable', '*', './stable/ambassador'" && exit 1;
 fi
 
 URL=$2
@@ -34,21 +34,22 @@ if [[ -z $2 ]] ; then
   echo "Helm repository URL parameter needed!" && exit 1;
 fi
 
-TAG=$(echo ${GITHUB_REF} | rev | cut -d/ -f1 | rev)
-if [[ "${GITHUB_REF}" == "refs/tags"* ]]; then
-    echo "Starting action for tag ${TAG}";
-else
-    echo "Skipping action because push does not refer to a git tag!" && exit 78;
+if [[ -f "$TARGET/Chart.yaml" ]]; then
+	CHART=$(basename "$TARGET")
+	echo "Packaging $CHART from $TARGET"
+	package
+	exit $?
 fi
 
-TAG_FILTER=$3
-if [[ -z $3 ]]; then
-  echo "Tag filter not specified";
-else
-    if [[ ${TAG} != *${TAG_FILTER}* ]]; then
-    echo "Tag ${TAG} does not match filter ${TAG_FILTER}" && exit 78;
-    fi
-fi
+for dirname in "$TARGET"/*/; do
+	if [ ! -e "$dirname/Chart.yaml" ]; then
+		echo "No charts found for $TARGET"
+		continue
+	fi
 
-package
+	CHART=$(basename "$dirname")
+	echo "Packaging $CHART from $dirname"
+	package || exit $?
+done
+
 push
