@@ -10,12 +10,11 @@ init() {
 
 lint() {
   echo "Linting in $PWD"
-  ls -al
-  ct lint --chart-dirs . || exit $?
+  ct lint --chart-dirs --all . || exit $?
 }
 
 package() {
-  helm package ${1} --destination /github/home/pkg/
+  helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination /github/home/pkg/
 }
 
 push() {
@@ -25,8 +24,12 @@ push() {
     git config user.name ${GITHUB_ACTOR}
     git remote set-url origin ${REPOSITORY}
     git checkout gh-pages
+    cd ..
+    helm repo index --url "$URL" --merge workspace/index.yaml /github/home/pkg
+    cd workspace
     mv /github/home/pkg/*.tgz .
-    helm repo index . --url ${URL}
+    mv /github/home/pkg/index.yaml .
+    # helm repo index . --url ${URL}
     git add .
     git commit -m "Publish Helm chart(s)"
     git push origin gh-pages
@@ -50,11 +53,9 @@ fi
 
 init
 
-lint
+lint && package && push
 
-for chart_dir in $(ct list-changed --chart-dirs .); do
-  echo "Processing $chart_dir"
-  package "$chart_dir"
-done
-
-push
+# for chart_dir in $(ct list-changed --chart-dirs .); do
+#   echo "Processing $chart_dir"
+#   package "$chart_dir"
+# done
