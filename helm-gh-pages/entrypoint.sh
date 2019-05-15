@@ -18,7 +18,8 @@ package() {
 }
 
 push() {
-  echo "Processing $(find /github/home/pkg/ -type f -name "*.tgz")"
+  echo "pushing charts: "
+  echo $(find /github/home/pkg/ -type f -name "*.tgz")
   if find /github/home/pkg/ -type f -name "*.tgz" > /dev/null; then    
     git config user.email ${GITHUB_ACTOR}@users.noreply.github.com
     git config user.name ${GITHUB_ACTOR}
