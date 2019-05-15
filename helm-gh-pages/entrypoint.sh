@@ -4,12 +4,13 @@ set -o errexit
 set -o pipefail
 
 init() {
-  helm init --client-only
+  # helm init --client-only
   mkdir /github/home/pkg
 }
 
 lint() {
   echo "Linting in $PWD"
+  ls -al
   ct lint --chart-dirs . || exit $?
 }
 
@@ -30,7 +31,8 @@ push() {
     git commit -m "Publish Helm chart(s)"
     git push origin gh-pages
   else
-    echo "Nothing to package!"
+    echo "Nothing changed - no new packages to push!"
+    exit 78
   fi 
 }
 
@@ -51,27 +53,8 @@ init
 lint
 
 for chart_dir in $(ct list-changed --chart-dirs .); do
-  # CHART=$(basename "$chart_dir")
   echo "Processing $chart_dir"
   package "$chart_dir"
 done
-
-# if [[ -f "$TARGET/Chart.yaml" ]]; then
-# 	CHART=$(basename "$TARGET")
-# 	echo "Packaging $CHART from $TARGET"
-# 	package
-# 	exit $?
-# fi
-
-# for dirname in "$TARGET"/*/; do
-# 	if [ ! -e "$dirname/Chart.yaml" ]; then
-# 		echo "No charts found for $TARGET"
-# 		continue
-# 	fi
-
-# 	CHART=$(basename "$dirname")
-# 	echo "Packaging $CHART from $dirname"
-# 	package || exit $?
-# done
 
 push
