@@ -10,10 +10,11 @@ init() {
 
 lint() {
   echo "Linting in $PWD"
-  ct lint --chart-dirs --all . || exit $?
+  ct lint --chart-dirs . --all || exit $?
 }
 
 package() {
+  echo "considering packaging the following: $(find . -type f -name "Chart.yaml" -exec dirname {} \;)"
   helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination /github/home/pkg/
 }
 
