@@ -27,10 +27,10 @@ push() {
     ls -al workspace/index.yaml
     helm repo index --url "$URL" --merge workspace/index.yaml /github/home/pkg
     cd workspace
+    diff index.yaml /github/home/pkg/index.yaml
     mv /github/home/pkg/*.tgz .
     mv /github/home/pkg/index.yaml .
     ls -al index.yaml
-    diff /github/home/pkg/index.yaml index.yaml
     # helm repo index . --url ${URL}
     git add .
     git commit -m "Publish Helm chart(s)"
