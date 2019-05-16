@@ -46,12 +46,13 @@ push() {
 REPOSITORY="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
 # only consider a pull request
+echo "checking GITHUB_EVENT_NAME ($GITHUB_EVENT_NAME)"
 if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
   echo "Processing pull request"
   lint_pr
   exit 0
-# only consider a push event on the master branch
-elif [[ "$GITHUB_EVENT_NAME" == "push" ]] && [[ "$GITHUB_EVENT_NAME" == "refs/heads/master" ]]; then
+else
+  echo "considering this to be a push event on master"
   URL=$1
   if [[ -z $1 ]] ; then
     echo "Helm repository URL parameter needed!" && exit 1;
