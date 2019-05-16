@@ -11,9 +11,9 @@ init() {
 lint() {
   echo "Linting in $PWD"
   if [[ -z $SKIP_LINTING ]] ; then
-    echo "Skipping Linting of all helm charts"
-  else
     ct lint --chart-dirs . --all || exit $?
+  else
+    echo "Skipping Linting of all helm charts"
   fi
 }
 
