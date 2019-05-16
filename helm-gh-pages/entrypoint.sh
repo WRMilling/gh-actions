@@ -45,10 +45,6 @@ push() {
 
 REPOSITORY="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-echo "PR is: $PR"
-echo "GITHUB_REF is: $GITHUB_REF"
-echo "GITHUB_EVENT_NAME is: $GITHUB_EVENT_NAME"
-
 # only consider a pull request
 if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
   echo "Processing pull request"
