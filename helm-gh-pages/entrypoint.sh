@@ -45,13 +45,19 @@ push() {
 
 REPOSITORY="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-if [[ -z $PR ]] ; then
+echo "PR is: $PR"
+echo "GITHUB_REF is: $GITHUB_REF"
+echo "GITHUB_EVENT_NAME is: $GITHUB_EVENT_NAME"
+
+if [[ -z $PR ]]
+  if [[ "$GITHUB_REF" == "master" ]]; then
   URL=$1
   if [[ -z $1 ]] ; then
     echo "Helm repository URL parameter needed!" && exit 1;
   fi
   init
   lint && package && push
+  fi
 else
   echo "Processing pull request"
   lint_pr
