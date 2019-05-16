@@ -10,7 +10,16 @@ init() {
 
 lint() {
   echo "Linting in $PWD"
-  # ct lint --chart-dirs . --all || exit $?
+  if [[ -z $SKIP_LINTING ]] ; then
+    echo "Skipping Linting of all helm charts"
+  else
+    ct lint --chart-dirs . --all || exit $?
+  fi
+}
+
+lint_pr() {
+  echo "Linting in $PWD for a pull request"
+  ct lint --chart-dirs . || exit $?
 }
 
 package() {
@@ -23,15 +32,8 @@ push() {
     git config user.name ${GITHUB_ACTOR}
     git remote set-url origin ${REPOSITORY}
     git checkout gh-pages
-    cd ..
-    ls -al workspace/index.yaml
-    helm repo index --url "$URL" --merge workspace/index.yaml /github/home/pkg
-    cd workspace
-    diff index.yaml /github/home/pkg/index.yaml
     mv /github/home/pkg/*.tgz .
-    mv /github/home/pkg/index.yaml .
-    ls -al index.yaml
-    # helm repo index . --url ${URL}
+    helm repo index . --url ${URL}
     git add .
     git commit -m "Publish Helm chart(s)"
     git push origin gh-pages
@@ -43,21 +45,14 @@ push() {
 
 REPOSITORY="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-# TARGET=$1
-# if [[ -z "$TARGET" ]]; then
-# 	echo "Set a target eg './stable', '*', './stable/ambassador'" && exit 1;
-# fi
-
-URL=$1
-if [[ -z $1 ]] ; then
-  echo "Helm repository URL parameter needed!" && exit 1;
+if [[ -z $PR ]] ; then
+  URL=$1
+  if [[ -z $1 ]] ; then
+    echo "Helm repository URL parameter needed!" && exit 1;
+  fi
+  init
+  lint && package && push
+else
+  echo "Processing pull request"
+  lint_pr
 fi
-
-init
-
-lint && package && push
-
-# for chart_dir in $(ct list-changed --chart-dirs .); do
-#   echo "Processing $chart_dir"
-#   package "$chart_dir"
-# done
