@@ -49,11 +49,13 @@ echo "PR is: $PR"
 echo "GITHUB_REF is: $GITHUB_REF"
 echo "GITHUB_EVENT_NAME is: $GITHUB_EVENT_NAME"
 
+# only consider a pull request
 if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
   echo "Processing pull request"
   lint_pr
   exit 0
-elif [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+# only consider a push event on the master branch
+elif [[ "$GITHUB_EVENT_NAME" == "push" ]] && [[ "$GITHUB_EVENT_NAME" == "refs/heads/master" ]]; then
   URL=$1
   if [[ -z $1 ]] ; then
     echo "Helm repository URL parameter needed!" && exit 1;
