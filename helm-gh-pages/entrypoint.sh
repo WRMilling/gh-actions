@@ -49,11 +49,11 @@ echo "PR is: $PR"
 echo "GITHUB_REF is: $GITHUB_REF"
 echo "GITHUB_EVENT_NAME is: $GITHUB_EVENT_NAME"
 
-if [[ "GITHUB_EVENT_NAME" == "pull_request" ]]; then
+if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
   echo "Processing pull request"
   lint_pr
   exit 0
-elif [[ "GITHUB_EVENT_NAME" == "push" ]]; then
+elif [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
   URL=$1
   if [[ -z $1 ]] ; then
     echo "Helm repository URL parameter needed!" && exit 1;
