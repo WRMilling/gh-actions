@@ -9,6 +9,7 @@ LABEL "com.github.actions.color"="green"
 LABEL "com.github.actions.name"="Helm Chart Test"
 LABEL "com.github.actions.description"="This is an Action to lint, package, and publish Helm charts to GitHub Pages."
 
+RUN apk add jq
 
 COPY entrypoint.sh /entrypoint.sh
 

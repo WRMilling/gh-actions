@@ -23,20 +23,27 @@ lint_pr() {
 }
 
 package() {
-  helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination /github/home/pkg/
+  # helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination /github/home/pkg/
+  ls -al /github/workflow/event.json
+  jq /github/workflow/event.json 
+  for dir in $(cat /github/workflow/event.json | jq -r '.commits[].modified | .[]' | grep -i chart.yaml); do
+    echo "working on $dir"
+    helm package $dir --destination /github/home/pkg/
+  done
 }
 
 push() {
-  if find /github/home/pkg/ -type f -name "*.tgz" > /dev/null; then    
-    git config user.email ${COMMIT_EMAIL}
-    git config user.name ${GITHUB_ACTOR}
-    git remote set-url origin ${REPOSITORY}
-    git checkout gh-pages
-    mv /github/home/pkg/*.tgz .
-    helm repo index . --url ${URL}
-    git add .
-    git commit -m "Publish Helm chart(s)"
-    git push origin gh-pages
+  if find /github/home/pkg/ -type f -name "*.tgz" > /dev/null; then
+    echo "going to push: (ls -al /github/home/pkg/*.tgz)"    
+    # git config user.email ${COMMIT_EMAIL}
+    # git config user.name ${GITHUB_ACTOR}
+    # git remote set-url origin ${REPOSITORY}
+    # git checkout gh-pages
+    # mv /github/home/pkg/*.tgz .
+    # helm repo index . --url ${URL}
+    # git add .
+    # git commit -m "Publish Helm chart(s)"
+    # git push origin gh-pages
   else
     echo "Nothing changed - no new packages to push!"
     exit 78
