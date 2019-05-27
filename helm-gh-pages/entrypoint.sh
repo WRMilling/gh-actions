@@ -24,7 +24,10 @@ lint_pr() {
 
 package() {
   for modified_file in $(cat /github/workflow/event.json | jq -r '.commits[].modified | .[]'); do
-    dir=$(dirname $(echo $modified_file))
+    modified_dir=$(dirname $(echo $modified_file))
+    echo $modified_dir >> /github/home/modified_dirs.txt
+  done
+  for dir in $(sort -u /github/home/modified_dirs.txt); do
     echo "Checking $dir..."
     if find $dir -type f -iname "Chart.yaml" | egrep -q '.'; then
       echo "$dir is a valid chart directory - packaging"
