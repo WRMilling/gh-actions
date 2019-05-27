@@ -25,15 +25,16 @@ lint_pr() {
 package() {
   # helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination pkg
   ls -al /github/workflow/event.json
-  jq /github/workflow/event.json 
+  cat /github/workflow/event.json | jq -r
   for dir in $(cat /github/workflow/event.json | jq -r '.commits[].modified | .[]' | grep -i chart.yaml); do
     echo "working on $dir"
+    ct lint --chart-dirs $dir || exit $?
     helm package $dir --destination /github/home/pkg/
   done
 }
 
 push() {
-  if find /github/home/pkg/ -type f -name "*.tgz" > /dev/null; then
+  if find /github/home/pkg/ -type f -name "*.tgz" | egrep -q '.'; then
     echo "going to push: (ls -al /github/home/pkg/*.tgz)"    
     git config user.email ${COMMIT_EMAIL}
     git config user.name ${GITHUB_ACTOR}
