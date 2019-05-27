@@ -28,7 +28,7 @@ package() {
 
 push() {
   if find /github/home/pkg/ -type f -name "*.tgz" > /dev/null; then    
-    git config user.email ${GITHUB_ACTOR}@users.noreply.github.com
+    git config user.email ${COMMIT_EMAIL}
     git config user.name ${GITHUB_ACTOR}
     git remote set-url origin ${REPOSITORY}
     git checkout gh-pages
@@ -56,6 +56,9 @@ else
   URL=$1
   if [[ -z $1 ]] ; then
     echo "Helm repository URL parameter needed!" && exit 1;
+  fi
+  if [ -z "$COMMIT_EMAIL" ] ; then
+    COMMIT_EMAIL="${GITHUB_ACTOR}@users.noreply.github.com"
   fi
   init
   lint && package && push
