@@ -23,7 +23,7 @@ lint_pr() {
 }
 
 package() {
-  # helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination /github/home/pkg/
+  # helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination pkg
   ls -al /github/workflow/event.json
   jq /github/workflow/event.json 
   for dir in $(cat /github/workflow/event.json | jq -r '.commits[].modified | .[]' | grep -i chart.yaml); do
@@ -35,22 +35,23 @@ package() {
 push() {
   if find /github/home/pkg/ -type f -name "*.tgz" > /dev/null; then
     echo "going to push: (ls -al /github/home/pkg/*.tgz)"    
-    # git config user.email ${COMMIT_EMAIL}
-    # git config user.name ${GITHUB_ACTOR}
-    # git remote set-url origin ${REPOSITORY}
-    # git checkout gh-pages
-    # mv /github/home/pkg/*.tgz .
-    # helm repo index . --url ${URL}
-    # git add .
-    # git commit -m "Publish Helm chart(s)"
-    # git push origin gh-pages
+    git config user.email ${COMMIT_EMAIL}
+    git config user.name ${GITHUB_ACTOR}
+    git remote set-url origin ${REPOSITORY}
+    git checkout gh-pages
+    mv /github/home/pkg/*.tgz .
+    helm repo index . --url ${URL}
+    git add .
+    git commit -m "Publish Helm chart(s)"
+    git push origin gh-pages
   else
     echo "Nothing changed - no new packages to push!"
     exit 78
   fi 
 }
 
-REPOSITORY="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+# REPOSITORY="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+REPOSITORY="https://${ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
 # only consider a pull request
 echo "checking GITHUB_EVENT_NAME ($GITHUB_EVENT_NAME)"
