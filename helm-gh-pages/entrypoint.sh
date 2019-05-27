@@ -24,8 +24,6 @@ lint_pr() {
 
 package() {
   # helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination pkg
-  ls -al /github/workflow/event.json
-  cat /github/workflow/event.json | jq -r
   for dir in $(cat /github/workflow/event.json | jq -r '.commits[].modified | .[]' | grep -i chart.yaml); do
     echo "working on $dir"
     ct lint --chart-dirs $dir || exit $?
