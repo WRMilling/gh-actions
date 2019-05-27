@@ -23,13 +23,12 @@ lint_pr() {
 }
 
 package() {
-  # helm package $(find . -type f -name "Chart.yaml" -exec dirname {} \;) --destination pkg
-  for modified_chart in $(cat /github/workflow/event.json | jq -r '.commits[].modified | .[]' | grep -i chart.yaml); do
-    dir=$(dirname $(echo $modified_chart))
-    echo "working on $dir"
+  for modified_file in $(cat /github/workflow/event.json | jq -r '.commits[].modified | .[]'); do
+    dir=$(dirname $(echo $modified_file))
+    echo "Checking $dir..."
     if find $dir -type f -iname "Chart.yaml" | egrep -q '.'; then
-      echo "$dir is a valid chart directory - linting and packaging"
-      ct lint --chart-dirs $dir && helm package $dir --destination /github/home/pkg/
+      echo "$dir is a valid chart directory - packaging"
+      helm package $dir --destination /github/home/pkg/
     fi
   done
 }
@@ -52,7 +51,6 @@ push() {
   fi 
 }
 
-# REPOSITORY="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 REPOSITORY="https://${ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
 # only consider a pull request
