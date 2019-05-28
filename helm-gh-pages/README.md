@@ -38,7 +38,7 @@ Assuming your GitHub repository has a Helm chart named `app` located at `chart/a
 When you push the tag, GitHub will start the workflow and the helm-gh-pages will do the following:
 
 * validates the chart by running Helm lint
-* packages the chart to `/github/home/pkg/app-1.0.0.tgz`
+* packages the chart(s) to `/github/home/pkg/app-1.0.0.tgz`
 * checks out the `gh-pages` branch
 * copies the `app-1.0.0.tgz` from `/github/home` to `/github/workspace`
 * updates the Helm repository index using the GitHub pages URL
