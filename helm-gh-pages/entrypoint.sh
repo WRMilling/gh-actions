@@ -36,7 +36,7 @@ package() {
     echo "Checking $dir... as a candidate chart"
     if find "$dir" -type f -iname "Chart.yaml" | grep -E -q '.'; then
       echo "$dir is a valid chart directory - packaging"
-      helm package" $dir" --destination /github/home/pkg/
+      helm package "$dir" --destination /github/home/pkg/ || exit $?
     fi
   done
 }
