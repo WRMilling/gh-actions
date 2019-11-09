@@ -1,4 +1,4 @@
-FROM gcr.io/cloud-builders/kubectl
+FROM debian:stable-slim
 
 LABEL "name"="Rsync Action"
 LABEL "maintainer"="Winston R. Milling <Winston@Milli.ng>"
